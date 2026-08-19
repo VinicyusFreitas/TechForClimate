@@ -1,0 +1,311 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>Tech For Climate - Monitoramento Inteligente</title>
+				<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+					<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+					<style>
+						:root {
+						--bg-page: #0f172a;
+						--header-bg: #030712;
+						--card-bg: #1e293b;
+						--text-main: #f8fafc;
+						--text-muted: #94a3b8;
+						--border-color: #334155;
+						--primary-blue: #0284c7;
+						--input-bg: #0f172a;
+						}
+
+						* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+						html, body { width: 100%; overflow-x: hidden; background-color: var(--bg-page); color: var(--text-main); padding-bottom: 40px; }
+
+						header {
+						background: var(--header-bg);
+						color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+						border-bottom: 1px solid var(--border-color);
+						}
+
+						.brand { display: flex; align-items: center; gap: 12px; }
+						.brand-icon { width: 36px; height: 36px; background: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+						.brand-title { font-size: 1.1rem; font-weight: 800; color: #ffffff; }
+						.brand-subtitle { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; }
+
+						.header-location { display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.05); padding: 8px 14px; border-radius: 12px; border: 1px solid var(--border-color); }
+						.location-info { text-align: right; }
+						.location-city { font-weight: 700; font-size: 0.85rem; color: #ffffff; }
+						.location-time { font-size: 0.75rem; color: var(--text-muted); }
+						.header-temp { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 6px; color: #ffffff; }
+
+						.container { max-width: 1280px; width: 100%; margin: 20px auto; padding: 0 16px; display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 20px; }
+						.main-column, .side-column { width: 100%; min-width: 0; }
+
+						.card { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid var(--border-color); margin-bottom: 20px; overflow: hidden; }
+
+						.hero-weather { background: linear-gradient(135deg, #be123c 0%, #e11d48 50%, #fb7185 100%); color: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; border: none; }
+						.hero-header-label { font-size: 0.75rem; font-weight: 800; opacity: 0.9; margin-bottom: 12px; }
+						.hero-main { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between; }
+						.hero-temp-box { display: flex; align-items: center; gap: 12px; }
+						.hero-icon { font-size: 48px; }
+						.hero-degree { font-size: 2.8rem; font-weight: 800; line-height: 1; }
+						.hero-feels { font-size: 0.8rem; opacity: 0.9; margin-top: 4px; }
+
+						.hero-details { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 16px; flex-grow: 1; }
+						.detail-item { font-size: 0.8rem; }
+						.detail-item span { display: block; font-size: 0.65rem; opacity: 0.8; font-weight: 700; text-transform: uppercase; }
+						.detail-item strong { font-size: 0.95rem; font-weight: 700; }
+
+						.risk-banner { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 12px; margin-top: 16px; display: flex; align-items: center; gap: 12px; }
+						.risk-banner-icon { width: 32px; height: 32px; background: #f59e0b; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; color: #000; }
+
+						.chart-wrapper { position: relative; width: 100%; height: 220px; }
+
+						.section-title { font-size: 0.85rem; font-weight: 800; color: #38bdf8; text-transform: uppercase; margin-bottom: 14px; }
+						.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+						.stat-box { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; }
+						.stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+						.stat-val { font-size: 1.1rem; font-weight: 800; color: var(--text-main); }
+						.stat-lbl { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+
+						.stat-full { background: #064e3b; border: 1px solid #059669; border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; }
+
+						.form-group { margin-bottom: 12px; }
+						.form-group label { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px; color: var(--text-muted); }
+						.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.85rem; background: var(--input-bg); color: var(--text-main); outline: none; }
+						.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #38bdf8; }
+
+						.btn-submit { width: 100%; background: var(--primary-blue); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: background 0.2s; }
+						.btn-submit:hover { background: #0369a1; }
+
+						.bottom-alert { background: linear-gradient(90deg, #991b1b 0%, #b45309 100%); color: white; border-radius: 16px; padding: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; border: 1px solid var(--border-color); }
+						.chart-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 16px; }
+						.chart-metric-box { background: var(--input-bg); border-radius: 10px; padding: 10px; border: 1px solid var(--border-color); }
+
+						.occurrence-item { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+						.btn-delete { background: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+						.btn-delete:hover { background: #dc2626; }
+
+						@media (max-width: 900px) {
+						.container { grid-template-columns: 1fr; }
+						header { justify-content: center; text-align: center; }
+						.location-info { text-align: center; }
+						}
+
+						@media (max-width: 500px) {
+						.hero-details { border-left: none; border-top: 1px solid rgba(255,255,255,0.2); padding-left: 0; padding-top: 12px; }
+						.stats-grid { grid-template-columns: 1fr; }
+						}
+					</style>
+				</head>
+	<body>
+
+		<header>
+			<div class="brand">
+				<div class="brand-icon">🌱</div>
+				<div>
+					<div class="brand-title">Tech For Climate</div>
+					<div class="brand-subtitle">Monitoramento inteligente para um futuro sustentável</div>
+				</div>
+			</div>
+			<div class="header-location">
+				<div class="location-info">
+					<div class="location-city">
+						📍 <span id="header-city">Localizando...</span>
+					</div>
+					<div class="location-time">
+						Atualizado: <span id="header-time">--:--</span> 🔄
+					</div>
+				</div>
+				<div class="header-temp">
+					<span id="header-temp-val">--</span>°C ☀️
+				</div>
+			</div>
+		</header>
+
+		<div class="container">
+			<div class="main-column">
+				<div class="hero-weather">
+					<div class="hero-header-label">SITUAÇÃO ATUAL</div>
+					<div class="hero-main">
+						<div class="hero-temp-box">
+							<div class="hero-icon">☀️</div>
+							<div>
+								<div class="hero-degree">
+									<span id="main-temp">--</span>°C
+								</div>
+								<div class="hero-feels">
+									Sensação térmica: <strong>
+										<span id="main-feels">--</span>°C
+									</strong>
+								</div>
+							</div>
+						</div>
+						<div class="hero-details">
+							<div class="detail-item">
+								<span>Umidade</span>
+								<strong>
+									<span id="main-humidity">--</span>%
+								</strong>
+							</div>
+							<div class="detail-item">
+								<span>Condição</span>
+								<strong>
+									<span id="main-condition">Ensolarado</span>
+								</strong>
+							</div>
+							<div class="detail-item">
+								<span>UV</span>
+								<strong>Moderado</strong>
+							</div>
+							<div class="detail-item">
+								<span>Vento</span>
+								<strong>12 km/h</strong>
+							</div>
+						</div>
+					</div>
+
+					<div class="risk-banner">
+						<div class="risk-banner-icon">⚠️</div>
+						<div>
+							<div style="font-size:0.85rem; font-weight:800;">
+								NÍVEL DE RISCO: <span id="main-risk-title">ATENÇÃO</span>
+							</div>
+							<div style="font-size:0.75rem; opacity:0.95;">Condições de calor elevado. Beba água e evite exposição prolongada ao sol.</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="section-title">Variação de Temperatura e Umidade</div>
+					<div class="chart-wrapper">
+						<canvas id="weatherChart"></canvas>
+					</div>
+					<div class="chart-metrics">
+						<div class="chart-metric-box">
+							<span class="detail-item">
+								<span>Período</span>
+								<strong>Últimas 24h</strong>
+							</span>
+						</div>
+						<div class="chart-metric-box">
+							<span class="detail-item">
+								<span>Temp. Média</span>
+								<strong>28.6°C</strong>
+							</span>
+						</div>
+						<div class="chart-metric-box">
+							<span class="detail-item">
+								<span>Umidade Média</span>
+								<strong>56%</strong>
+							</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="bottom-alert">
+					<div>
+						<div style="font-weight:800; font-size:0.95rem;">🚨 ALERTA DE CALOR</div>
+						<div style="font-size:0.8rem; opacity:0.9; margin-top:2px;">Temperaturas elevadas podem causar desconforto. Mantenha-se hidratado.</div>
+					</div>
+					<button onclick="openModal()" style="background:#f59e0b; border:none; color:#000; padding:8px 14px; border-radius:20px; font-weight:800; font-size:0.75rem; cursor:pointer;">Saiba Mais</button>
+				</div>
+			</div>
+
+			<div class="side-column">
+				<div class="card">
+					<div class="section-title">Estatísticas Rápidas</div>
+					<div class="stats-grid">
+						<div class="stat-box">
+							<div class="stat-icon" style="background:#881337; color:#f43f5e;">🌡️</div>
+							<div>
+								<div class="stat-lbl">Sensação Máx</div>
+								<div class="stat-val">
+									<span id="stat-max">33.7</span>°C
+								</div>
+							</div>
+						</div>
+						<div class="stat-box">
+							<div class="stat-icon" style="background:#7c2d12; color:#fb923c;">🔔</div>
+							<div>
+								<div class="stat-lbl">Alertas Ativos</div>
+								<div class="stat-val">1</div>
+							</div>
+						</div>
+					</div>
+					<div class="stat-full">
+						<div class="stat-icon" style="background:#10b981; color:white;">📋</div>
+						<div>
+							<div class="stat-lbl" style="color:#a7f3d0;">Ocorrências Ativas</div>
+							<div class="stat-val" style="color:#6ee7b7;">
+								<span id="stat-count">0</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="section-title">Registrar Ocorrência</div>
+					<form id="occurrence-form">
+						<div class="form-group">
+							<label>Título</label>
+							<input type="text" id="title" required="" placeholder="Ex: Queda de árvore">
+						</div>
+						<div class="form-group">
+							<label>Local</label>
+							<input type="text" id="location-input" required="" placeholder="Carregando localização...">
+						</div>
+						<div class="form-group">
+							<label>Gravidade Relatada</label>
+							<select id="riskLevel">
+								<option value="Atenção">🟡 Atenção</option>
+								<option value="Normal">🟢 Normal</option>
+								<option value="Alerta">🟠 Alerta</option>
+								<option value="Risco Elevado">🔴 Risco Elevado</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Descrição</label>
+							<textarea id="description" rows="3" placeholder="Detalhes da observação..."></textarea>
+						</div>
+						<button type="submit" class="btn-submit">✈️ Salvar Ocorrência</button>
+					</form>
+
+					<div style="margin-top:20px;">
+						<div class="section-title">Lista de Ocorrências</div>
+						<div id="occurrences-list"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="info-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(4px); z-index:999; justify-content:center; align-items:center;">
+			<div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:16px; max-width:500px; width:90%; padding:24px; box-shadow:0 10px 25px rgba(0,0,0,0.5); color:var(--text-main);">
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+					<h3 style="color:#f59e0b; font-size:1.1rem; font-weight:800;">🚨 Cuidados em Ondas de Calor</h3>
+					<button onclick="closeModal()" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--text-muted);">✕</button>
+				</div>
+				<ul style="display:flex; flex-direction:column; gap:10px; font-size:0.85rem; color:var(--text-muted); line-height:1.4; margin-bottom:20px; padding-left:20px;">
+					<li>
+						<strong>Hidratação:</strong> Beba água regularmente, mesmo se não sentir sede.
+					</li>
+					<li>
+						<strong>Sol Direto:</strong> Evite exposição solar entre 10h e 16h.
+					</li>
+					<li>
+						<strong>Alimentação:</strong> Prefira refeições leves e ricas em água.
+					</li>
+					<li>
+						<strong>Ambientes:</strong> Mantenha locais ventilados ou umedecidos.
+					</li>
+					<li>
+						<strong>Grupos Vulneráveis:</strong> Atenção com crianças, idosos e animais.
+					</li>
+				</ul>
+				<button onclick="closeModal()" style="width:100%; background:#f59e0b; color:black; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">Entendi</button>
+			</div>
+		</div>
+
+		<script src="js/app.js"></script>
+	</body>
+</html>

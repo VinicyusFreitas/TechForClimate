@@ -1,0 +1,6 @@
+@TechForClimate_HostAddress = http://localhost:5274
+
+GET {{TechForClimate_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
